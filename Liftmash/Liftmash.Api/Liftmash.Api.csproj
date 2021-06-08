@@ -13,7 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NSwag.AspNetCore" Version="13.11.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +26,11 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Liftmash.Domain.Abstaractions\Liftmash.Domain.Abstaractions.csproj" />
+    <ProjectReference Include="..\Liftmash.Infrasructure.Data\Liftmash.Infrasructure.Data.csproj" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

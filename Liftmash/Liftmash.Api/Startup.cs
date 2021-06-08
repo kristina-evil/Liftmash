@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Liftmash.Infrasructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Liftmash.Domain.Abstaractions.Repositories;
 
 namespace Liftmash.Api
 {
@@ -20,11 +21,33 @@ namespace Liftmash.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+
             services.AddControllersWithViews();
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
+
+            services.AddScoped<IMaterialsRepository, MaterialsRepository>();
+
+            services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddSwaggerDocument(config =>
             {
-                configuration.RootPath = "ClientApp/dist";
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "ToDo API";
+                    document.Info.Description = "A simple ASP.NET Core web API";
+                    document.Info.TermsOfService = "None";
+                    document.Info.Contact = new NSwag.OpenApiContact
+                    {
+                        Name = "Shayne Boyer",
+                        Email = string.Empty,
+                        Url = "https://twitter.com/spboyer"
+                    };
+                    document.Info.License = new NSwag.OpenApiLicense
+                    {
+                        Name = "Use under LICX",
+                        Url = "https://example.com/license"
+                    };
+                };
             });
         }
 
@@ -44,31 +67,24 @@ namespace Liftmash.Api
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            if (!env.IsDevelopment())
-            {
-                app.UseSpaStaticFiles();
-            }
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
 
             app.UseRouting();
+
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+            );
+
+            app.UseHttpsRedirection();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
-            });
-
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseAngularCliServer(npmScript: "start");
-                }
             });
         }
     }
